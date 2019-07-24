@@ -1,0 +1,54 @@
+language: generic
+sudo: required
+
+#script:
+#  - docker run -e CI=true USERNAME/react-test npm test
+
+#1. Specify docker as a dependency
+services:
+  - docker
+
+#2. Build test version of React project
+before_install:
+  - docker build -t me/react-test -f ./client/Dockerfile.dev ./client
+
+#3. Run tests
+script:
+  - docker run -e CI=true me/react-test npm test -- --coverage
+
+#4. Build prod version of all projects
+after_success:
+  - docker build -t "$DOCKER_ID/complex-client"  ./client
+  - docker build -t "$DOCKER_ID/complex-nginx"  ./nginx
+  - docker build -t "$DOCKER_ID/complex-server"  ./server
+  - docker build -t "$DOCKER_ID/complex-worker"  ./worker
+
+#5. Push all images to docker hub
+#5.1. Login to docker hub
+  - echo "$DOCKERHUB_PASS" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push "$DOCKER_ID/complex-client"
+  - docker push "$DOCKER_ID/complex-nginx"
+  - docker push "$DOCKER_ID/complex-server"
+  - docker push "$DOCKER_ID/complex-worker"
+
+
+#6. Tell Elastic Beanstalk to update
+# access_key_id:
+#    secure: $AWS_ACCESS_KEY
+
+
+#deploy:
+#  provider: elasticbeanstalk
+#  region: us-east-2
+#  app: docker-8complex
+#  env: Docker8complex-env
+#  bucket_name: elasticbeanstalk-us-east-2-950997577246
+#  bucket_path: docker-8complex
+#  on:
+#    branch: master
+#  access_key_id: 
+#    secure: $AWS_ACCESS_KEY
+#  secret_access_key:
+#    secure: $AWS_SECRET_KEY
+
+  

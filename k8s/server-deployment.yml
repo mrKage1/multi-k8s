@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: server
+  template:
+    metadata:
+      labels:
+        component: server
+    spec:
+      containers:
+        - name: server
+          image: mbmmbm/complex-server
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: '6379'
+            - name: PGHOST
+              value: postgres-cluster-ip-service
+            - name: PGPORT
+              value: '5432'
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+# Test password in plain text - dev only (one line):
+              value: devPAsSworD123
+# Prod way (4 lines):
+# created like: kubectl create secret generec pgpassword --from-literal PGPASSWORD=pass_here
+#              valueFrom:
+#                secretKeyRef:
+#                  name: pgpassword
+#                  key: PGPASSWORD
+
+
+              
