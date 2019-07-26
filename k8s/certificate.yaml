@@ -1,0 +1,22 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: dev1-plusomb-net-tls
+spec:
+  secretName: dev1-plusomb-net
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: dev1.plusomb.net
+  dnsNames:
+    - dev1.plusomb.net
+    - www.dev1.plusomb.net
+  acme:
+    config:
+      - http01:
+          ingressClass: nginx
+        domains:
+          - dev1.plusomb.net
+          - www.dev1.plusomb.net
+
+  
